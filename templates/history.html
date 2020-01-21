@@ -1,0 +1,56 @@
+{% include "header.html" %}
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block body %}
+
+<form action="/history" enctype=multipart/form-data method="post">
+    {{ form.csrf_token }}
+    {{ wtf.form_field(form.filter) }}
+    <input class="btn btn-primary" type=submit value="Filter it">
+</form>
+
+{% for project in items %}
+<h3>{{ project['name'] }}</h3>
+<table class="table table-striped">
+    <tbody>
+    <tr>
+        <th>File name</th>
+        <th>Upload time</th>
+        <th>Username</th>
+        <th>Documentation</th>
+        <th></th>
+        <th></th>
+    </tr>
+
+    {% for row in project['value'] %}
+        <tr>
+            <td>{{row.0}}</td>
+            <td>{{row.1}}</td>
+            <td>{{row.3}}</td>
+            <td>
+                <form action="/get_doc_by_filename" enctype=multipart/form-data method="post">
+                    <input type="hidden" id="filename_by_get" name="filename_by_get" value={{row.2}}>
+                    <input class="btn btn-primary" type=submit value="Documentation">
+                </form>
+            </td>
+            <td>
+                <form action="/send_mail_by_filename" enctype=multipart/form-data method="post">
+                    <input type="hidden" id="filename_by_send" name="filename_by_send" value={{row.2}}>
+                    <input class="btn btn-primary" type=submit value="Send to email">
+                </form>
+            </td>
+            <td>
+                <form action="/delete_documentation" enctype="multipart/form-data" method="post">
+                    <input type="hidden" id="filename_by_delete" name="filename_by_delete" value="{{row.2}}">
+                    <input type="hidden" id="project_name" name="project_name" value="{{project['name']}}">
+                    <input class="btn btn-primary" type=submit value="Delete this!">
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endfor %}
+
+{% endblock %}
